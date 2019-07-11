@@ -1,0 +1,16 @@
+{
+  "displayName": "Flatmesh",
+  "version": "0.0.1",
+  "description": "Dots implementation rendering and raycasting 2d meshes.",
+  "unity": "2019.1",
+  "dependencies": {
+    "com.unity.entities": "0.0.12-preview.33",
+    "com.unity.mathematics": "1.0.1",
+    "com.unity.burst": "1.0.4"
+  },
+  "unityRelease": "0f1",
+  "keywords": [
+    "flatmesh"
+  ],
+  "name": "com.alexnown.flatmesh"
+}
