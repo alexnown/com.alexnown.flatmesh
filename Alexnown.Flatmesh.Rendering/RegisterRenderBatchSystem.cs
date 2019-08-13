@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace Alexnown.Flatmesh.Rendering
 {
-    public struct AddedToLightweightRendering : ISystemStateComponentData { }
-
+    public struct BatchAddedToRendering : ISystemStateComponentData { }
+    
     [UpdateInGroup(typeof(InitRenderingSystemGroup))]
     [UpdateAfter(typeof(RenderingResourcesMappingSystem))]
     public class RegisterRenderBatchSystem : ComponentSystem
@@ -25,9 +25,9 @@ namespace Alexnown.Flatmesh.Rendering
             _resourcesSystem = World.GetOrCreateSystem<RenderingResourcesMappingSystem>();
             _notDeclaredYet = GetEntityQuery(
                 ComponentType.ReadOnly<RenderingElement>(),
-                ComponentType.Exclude<AddedToLightweightRendering>());
+                ComponentType.Exclude<BatchAddedToRendering>());
             _deletedQuery = GetEntityQuery(
-                ComponentType.ReadOnly<AddedToLightweightRendering>(),
+                ComponentType.ReadOnly<BatchAddedToRendering>(),
                 ComponentType.Exclude<RenderingElement>());
             _declareRenderingForEach = DeclateForRendering;
             _deleteRenderingForEach = DeleteFromRendering;
@@ -74,10 +74,10 @@ namespace Alexnown.Flatmesh.Rendering
         protected override void OnUpdate()
         {
             Entities.With(_notDeclaredYet).ForEach(_declareRenderingForEach);
-            PostUpdateCommands.AddComponent(_notDeclaredYet, ComponentType.ReadOnly<AddedToLightweightRendering>());
+            PostUpdateCommands.AddComponent(_notDeclaredYet, ComponentType.ReadOnly<BatchAddedToRendering>());
 
             Entities.With(_deletedQuery).ForEach(_deleteRenderingForEach);
-            EntityManager.RemoveComponent(_deletedQuery, ComponentType.ReadOnly<AddedToLightweightRendering>());
+            EntityManager.RemoveComponent(_deletedQuery, ComponentType.ReadOnly<BatchAddedToRendering>());
         }
     }
 }

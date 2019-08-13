@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Alexnown.Flatmesh.Rendering
 {
-    public struct DeclaredMeshTag : ISystemStateComponentData { }
+    public struct MeshInitialized : ISystemStateComponentData { }
 
     [UpdateInGroup(typeof(InitRenderingSystemGroup))]
     [UpdateBefore(typeof(RenderingResourcesMappingSystem))]
@@ -19,25 +19,25 @@ namespace Alexnown.Flatmesh.Rendering
             _resourcesMapping = World.GetOrCreateSystem<RenderingResourcesMappingSystem>();
             _meshesForCreating = GetEntityQuery(
                 ComponentType.ReadOnly<FlatMeshBlobComponent>(),
-                ComponentType.Exclude<DeclaredMeshTag>());
+                ComponentType.Exclude<MeshInitialized>());
             _removedMeshes = GetEntityQuery(
                 ComponentType.Exclude<FlatMeshBlobComponent>(),
-                ComponentType.ReadOnly<DeclaredMeshTag>());
+                ComponentType.ReadOnly<MeshInitialized>());
             _cachedForEach = CreateMeshFromMeshData;
         }
 
         protected override void OnUpdate()
         {
-            if (_meshesForCreating.CalculateLength() > 0)
+            if (!_meshesForCreating.IsEmptyIgnoreFilter)
             {
                 Entities.With(_meshesForCreating).ForEach(_cachedForEach);
-                PostUpdateCommands.AddComponent(_meshesForCreating, ComponentType.ReadOnly<DeclaredMeshTag>());
+                PostUpdateCommands.AddComponent(_meshesForCreating, ComponentType.ReadOnly<MeshInitialized>());
             }
 
-            if (_removedMeshes.CalculateLength() > 0)
+            if (!_removedMeshes.IsEmptyIgnoreFilter)
             {
                 Entities.With(_removedMeshes).ForEach(entity => _resourcesMapping.Meshes.Remove(entity));
-                PostUpdateCommands.RemoveComponent(_removedMeshes, ComponentType.ReadOnly<DeclaredMeshTag>());
+                PostUpdateCommands.RemoveComponent(_removedMeshes, ComponentType.ReadOnly<MeshInitialized>());
             }
         }
 

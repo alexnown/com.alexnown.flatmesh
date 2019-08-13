@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,37 +8,8 @@ namespace Alexnown.Flatmesh
 {
     public class FlatMeshProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
-        private readonly static List<ushort> _tempForTriangles = new List<ushort>();
         public Vector2[] Vertices;
         public ushort[] Triangles;
-
-        public int RemoveBrokenTriangles()
-        {
-            int totalTriangles = Triangles.Length / 3;
-            for (int i = 0; i < totalTriangles; i++)
-            {
-                var t1 = Triangles[3 * i];
-                var t2 = Triangles[3 * i + 1];
-                var t3 = Triangles[3 * i + 2];
-                var v1 = Vertices[t1];
-                var v2 = Vertices[t2];
-                var v3 = Vertices[t3];
-                if (v1 != v2 && v2 != v3 && v3 != v1)
-                {
-                    _tempForTriangles.Add(t1);
-                    _tempForTriangles.Add(t2);
-                    _tempForTriangles.Add(t3);
-                }
-            }
-            int removedTriangles = 0;
-            if (Triangles.Length != _tempForTriangles.Count)
-            {
-                removedTriangles = Triangles.Length - _tempForTriangles.Count;
-                Triangles = _tempForTriangles.ToArray();
-            }
-            _tempForTriangles.Clear();
-            return removedTriangles;
-        }
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -69,8 +39,8 @@ namespace Alexnown.Flatmesh
         {
             var builder = new BlobBuilder(Allocator.Temp);
             ref var root = ref builder.ConstructRoot<FlatMeshData>();
-            var verts = builder.Allocate(vertices.Length, ref root.Vertices);
-            var tris = builder.Allocate(triangles.Length, ref root.Triangles);
+            var verts = builder.Allocate(ref root.Vertices, vertices.Length);
+            var tris = builder.Allocate(ref root.Triangles, triangles.Length);
             for (int i = 0; i < vertices.Length; i++)
             {
                 verts[i] = vertices[i];
